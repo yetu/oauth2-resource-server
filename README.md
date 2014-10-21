@@ -12,7 +12,7 @@ The main feature is the Authorized playframework action that validates with a co
 GET     /                           @controllers.Application.index
 ```
 
-```
+```scala
 import com.yetu.oauth2resource.actions.Authorized
 
 class Application(auth: Authorized) extends Controller {
@@ -20,6 +20,7 @@ class Application(auth: Authorized) extends Controller {
   def index = auth.async {
     Future.successful(Ok("Great! The access token you provided was correct."))
   }
+}
 ```
 
 call with:
@@ -51,8 +52,8 @@ As well as into the code structure of the `sampleOAuth2ResourceServer/app/contro
 
 ## License
 
-We use the MIT license. See [LICENSE.md]() for details.
+We use the MIT license. See [license](LICENSE.md) for details.
 
 ## How to develop locally / contribute to this library
 
-See [CONTRIBUTING.md]() for details on running the project, contributing, and releasing new versions.
+See [contributing](CONTRIBUTING.md) for details on running the project, contributing, and releasing new versions.
