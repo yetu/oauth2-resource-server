@@ -26,6 +26,8 @@ scalacOptions := Seq("-encoding", "utf8",
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
 
+// scoverage plugin for test coverage:
+instrumentSettings
 
 // ----------- publishing settings -----------------------------------
 // http://www.scala-sbt.org/0.13.5/docs/Detailed-Topics/Publishing.html
