@@ -8,8 +8,8 @@ scalaVersion := "2.11.1"
 
 libraryDependencies ++= Seq(
   ws,
-  "com.yetu"          %% "oauth2-resource-server" % "0.1.4",
-  "com.yetu"          %% "oauth2-resource-server" % "0.1.4" % "test" classifier "tests"
+  "com.yetu"          %% "oauth2-resource-server" % "0.1.5",
+  "com.yetu"          %% "oauth2-resource-server" % "0.1.5" % "test" classifier "tests"
 )
 
 bintrayResolverSettings
