@@ -1,16 +1,30 @@
 package com.yetu.oauth2resource.utils
 
+import play.api.Logger
 import play.api.libs.json.{JsNull, JsValue}
 import play.api.mvc.Result
-import play.api.test.Helpers._
-import play.api.test.{FakeHeaders, FakeRequest}
 
-import scala.Some
 import scala.concurrent.Future
 
-class AuthUrlBuilder(val urlBase: String) extends TestLogger {
+import play.api.test._
+import play.api.test.Helpers._
+
+
+class AuthUrlBuilder(val urlBase: String) {
+
+  lazy val logger = Logger("TEST")
+  def log(s: String) = logger.debug(s)
+
   def get = request(urlBase, GET)
-  def post = request(urlBase, POST)
+  def delete = request(urlBase, DELETE)
+  def post(json: JsValue) = {
+    log("POSTing:" + json.toString())
+    request(urlBase, POST, FakeHeaders(), json)
+  }
+  def put(json: JsValue) = {
+    log("PUTing:" + json.toString())
+    request(urlBase, PUT, FakeHeaders(), json)
+  }
 
   def ?(token: AuthUrlBuilder): AuthUrlBuilder = new AuthUrlBuilder(urlBase + "?access_token=" + token.urlBase)
   def ?(token: String): AuthUrlBuilder = ?(new AuthUrlBuilder(token))

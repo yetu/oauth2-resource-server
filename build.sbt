@@ -41,6 +41,8 @@ releaseSettings
 
 publishMavenStyle := true
 
+publishArtifact in (Test, packageBin) := true
+
 // settings for bintray publishing
 
 bintrayPublishSettings

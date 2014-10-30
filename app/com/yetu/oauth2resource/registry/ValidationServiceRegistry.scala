@@ -9,7 +9,7 @@ import com.yetu.oauth2resource.settings.{OAuth2ProviderSettings, DefaultOAuth2Pr
 /**
  * This class should hold all the services that will be executed in application
  */
-trait ServiceRegistry {
+trait ValidationServiceRegistry {
 
 
   lazy val tokenValidationService: TokenValidationService = wire[OAuth2TokenValidationService]
@@ -20,7 +20,7 @@ trait ServiceRegistry {
 
 
 
-  //override oAuth2ProviderSettings when including this library if you don't want to use auth.yetudev.com
-  lazy val oAuth2ProviderSettings: OAuth2ProviderSettings = DefaultOAuth2ProviderSettings
+  //override oAuth2ProviderSettings when including this library.
+  def oAuth2ProviderSettings: OAuth2ProviderSettings
 
 }
