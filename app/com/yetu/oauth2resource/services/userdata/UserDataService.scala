@@ -7,5 +7,5 @@ import scala.util.Try
 
 trait UserDataService {
 
-  def getUserProfile(access_token: String): Future[Try[User]]
+  def getUserProfile(access_token: String): Future[User]
 }

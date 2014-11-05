@@ -4,8 +4,9 @@ package userdata
 
 import com.yetu.oauth2resource.model.{User, Email}
 import com.yetu.oauth2resource.settings.OAuth2ProviderSettings
-import play.api.Logger
+import play.api.{libs, Logger}
 import play.api.Play.current
+import play.api.libs.json
 import play.api.libs.json.{ JsError, JsSuccess }
 import play.api.libs.ws.{ WS, WSResponse }
 
@@ -15,7 +16,7 @@ import scala.util.{Success, Failure, Try}
 
 class RemoteUserDataService(oAuth2ProviderSettings: OAuth2ProviderSettings) extends UserDataService {
 
-  def getUserProfile(access_token: String): Future[Try[User]] = {
+  def getUserProfile(access_token: String): Future[User] = {
     val userInfo = WS.url(oAuth2ProviderSettings.UserInfoPath)
       .withQueryString(oAuth2ProviderSettings.ACCESS_TOKEN -> access_token)
       .get()
@@ -23,13 +24,11 @@ class RemoteUserDataService(oAuth2ProviderSettings: OAuth2ProviderSettings) exte
     userInfo map tryConvertUserInfo
   }
 
-
-  //todo check that user for the access_token scope has the email
-  private def tryConvertUserInfo(response: WSResponse): Try[User] = {
-    Try(response.json.validate[User] match {
+  private def tryConvertUserInfo(response: WSResponse): User = {
+    response.json.validate[User] match {
       case u: JsSuccess[User] => u.get
-      case e: JsError              => throw UserInfoException(s"Wrong response for user info. Cause: $e")
-    })
+      case e: JsError         => throw UserInfoException(s"Wrong response for user info. Cause: $e")
+    }
   }
 
 }
