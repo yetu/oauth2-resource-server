@@ -11,6 +11,6 @@ trait RoutesHelper {
   val correctToken = "correct_access_token"
   val wrongToken = "wrong_access_token"
 
-  val successfulValidationResponse = ValidationResponse(userUUID = "87656789-lkhghj-98678", userEmail = Some("test@test.com"), scope = Some("basic"))
+  val successfulValidationResponse = ValidationResponse(userUUID = Some("87656789-lkhghj-98678"), userEmail = Some("test@test.com"), scope = Some("basic"))
 
 }
