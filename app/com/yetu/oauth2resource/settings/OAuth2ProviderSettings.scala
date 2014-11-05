@@ -34,6 +34,6 @@ trait OAuth2ProviderSettings {
     import com.typesafe.config.ConfigFactory
     val config = ConfigFactory.load()
     val tokenValidationRelativePath =  config.getString("oauth2provider.relativePaths.tokenValidation")
-    val userProfileRelativePath = Oauth2providerBaseUrl + config.getString("oauth2provider.relativePaths.userProfile")
+    val userProfileRelativePath = config.getString("oauth2provider.relativePaths.userProfile")
   }
 }
