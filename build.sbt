@@ -11,6 +11,10 @@ scalaVersion :=  "2.11.2"
 libraryDependencies ++= Seq(
   ws,
   "net.logstash.logback" % "logstash-logback-encoder" % "3.0",
+  "com.plasmaconduit" %% "jws" % "0.12.0",
+  "com.plasmaconduit" %% "jwa" % "0.1.0",
+  "com.plasmaconduit" %% "jwt" % "0.9.0",
+  "com.plasmaconduit" %% "json" % "0.8.0",
   "org.scalatestplus" %% "play" % "1.2.0" % "test",
   "com.softwaremill.macwire" %% "macros" % "0.7.1")
 
