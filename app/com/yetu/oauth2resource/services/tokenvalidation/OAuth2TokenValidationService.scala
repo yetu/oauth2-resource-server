@@ -14,12 +14,16 @@ import scala.concurrent.Future
 
 class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSettings) extends TokenValidationService {
 
-  def validateToken(accessToken: String): Future[Either[Result, ValidationResponse]] = {
+  def validateTokenRemote(accessToken: String): Future[Either[Result, ValidationResponse]] = {
     val validationResult = WS.url(oAuth2ProviderSettings.TokenValidationPath)
       .withQueryString(oAuth2ProviderSettings.ACCESS_TOKEN -> accessToken)
       .get()
 
     validationResult.map(getUserId)
+  }
+
+  def validateTokenWithJWT(accessToken : String) = {
+     Future.failed(new Throwable);
   }
 
   private def getUserId(result: WSResponse): Either[Result, ValidationResponse] = {

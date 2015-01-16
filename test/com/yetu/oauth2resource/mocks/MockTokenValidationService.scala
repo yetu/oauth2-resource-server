@@ -12,11 +12,15 @@ import scala.concurrent.Future
 
 class MockTokenValidationService extends TokenValidationService with RoutesHelper {
 
-  override def validateToken(accessToken: Token): Future[Either[Result, ValidationResponse]] = {
+  override def validateTokenRemote(accessToken: Token): Future[Either[Result, ValidationResponse]] = {
     if (accessToken == correctToken) {
       Future.successful(Right(successfulValidationResponse))
     } else {
       Future.successful(Left(Unauthorized("")))
     }
+  }
+
+  override protected def validateTokenWithJWT(accessToken: Token): Future[Either[Result, ValidationResponse]] = {
+    throw new NotImplementedError("Not implemeted")
   }
 }
