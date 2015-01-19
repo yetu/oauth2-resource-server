@@ -1,7 +1,7 @@
 package com.yetu.oauth2resource.mocks
 
 import com.yetu.oauth2resource.model.{Token, ValidationResponse}
-import com.yetu.oauth2resource.services.tokenvalidation.{ValidationException, OAuth2TokenValidationService, TokenValidationService}
+import com.yetu.oauth2resource.services.tokenvalidation.{ValidationTokenException, OAuth2TokenValidationService, TokenValidationService}
 import com.yetu.oauth2resource.settings.OAuth2ProviderSettings
 import com.yetu.oauth2resource.utils.RoutesHelper
 
@@ -13,7 +13,7 @@ class MockTokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSettings)
     if (accessToken == correctToken) {
       Future.successful(Right(successfulValidationResponse))
     } else {
-      Future.successful(Left(ValidationException("Error of json token validation")))
+      Future.successful(Left(ValidationTokenException("Error of json token validation")))
     }
   }
 

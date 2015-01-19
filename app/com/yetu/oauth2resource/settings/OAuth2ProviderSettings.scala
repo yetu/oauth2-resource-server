@@ -22,6 +22,11 @@ trait OAuth2ProviderSettings {
   def UserInfoPath: String = Oauth2providerBaseUrl + Defaults.userProfileRelativePath
 
   /**
+   *  Fetch publci cert file
+   */
+  def PublicKeyPath: String = Oauth2providerBaseUrl + Defaults.publicCertUrlRelativePath
+
+  /**
    * The query string key holding an access token.
    */
   def ACCESS_TOKEN : String = "access_token"
@@ -33,6 +38,7 @@ trait OAuth2ProviderSettings {
   object Defaults {
     import com.typesafe.config.ConfigFactory
     val config = ConfigFactory.load()
+    val publicCertUrlRelativePath = config.getString("oauth2provider.relativePaths.publicKey")
     val tokenValidationRelativePath =  config.getString("oauth2provider.relativePaths.tokenValidation")
     val userProfileRelativePath = config.getString("oauth2provider.relativePaths.userProfile")
   }
