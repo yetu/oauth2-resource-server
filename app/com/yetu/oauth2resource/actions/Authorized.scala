@@ -1,7 +1,7 @@
 package com.yetu.oauth2resource.actions
 
 import com.yetu.oauth2resource.model.User
-import com.yetu.oauth2resource.services.tokenvalidation.TokenValidationService
+import com.yetu.oauth2resource.services.tokenvalidation.{TokenValidationService, ValidationException}
 import com.yetu.oauth2resource.services.userdata.UserDataService
 import com.yetu.oauth2resource.settings.OAuth2ProviderSettings
 import com.yetu.oauth2resource.utils.AuthorizedRequest
@@ -18,7 +18,7 @@ class Authorized(
                   userData: UserDataService,
                   oAuth2ProviderSettings: OAuth2ProviderSettings)
   extends ActionBuilder[AuthorizedRequest]
-  with ActionRefiner[Request, AuthorizedRequest] {
+  with ActionRefiner[Request, AuthorizedRequest] with Results {
 
   type UserValidationResult = Future[Either[Result, User]]
 
@@ -30,8 +30,10 @@ class Authorized(
     validatedToken map {
       case Right(valResponse) => Right(new AuthorizedRequest[A](valResponse, request))
       // delegate the initial wrong value to the future
-      case Left(result) => Left(result)
+      case Left(ex) => Left(ex match {
+          case ValidationException(msg) => Unauthorized(msg)
+          case _ => InternalServerError("Error error happened")
+        })
     }
-
   }
 }
