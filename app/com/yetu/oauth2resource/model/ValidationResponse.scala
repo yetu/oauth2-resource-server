@@ -2,7 +2,6 @@ package com.yetu.oauth2resource.model
 
 import play.api.libs.json._
 
-
 /**
  * JSON received when validating an access_token at /oauth2/validate or when decoding the access_token (which is a JSON web token).
  *

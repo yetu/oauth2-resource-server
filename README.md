@@ -29,6 +29,11 @@ call with:
 http://localhost:9000/?access_token=...
 ```
 
+###Warning!!!
+
+Since we use JWT in the project that validates tokens against public key from auth.yetudev.com we cache public key in memory.
+If you change it, please restart server with app using this library.
+
 ## Versions and dependencies
 
 This library is cross-compiled against Scala 2.10.4 and 2.11.2
@@ -49,6 +54,11 @@ Specifically have a look at these configuration files:
 * [conf/routes](sampleOAuth2ResourceServer/conf/routes)
 
 As well as into the code structure of the `sampleOAuth2ResourceServer/app/controllers.Application` and the `sampleOAuth2ResourceServer/app/registry.MyRegistry` classes. 
+
+###More about JWT
+
+[Used library](http://connect2id.com/products/nimbus-jose-jwt#example)
+[JWT general info](http://jwt.io/)
 
 ## License
 
