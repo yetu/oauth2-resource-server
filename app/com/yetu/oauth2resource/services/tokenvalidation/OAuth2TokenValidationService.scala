@@ -13,6 +13,8 @@ import play.api.http.Status.OK
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse, WSResponseHeaders}
+import play.api.Logger
+
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -41,6 +43,10 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
     WS.url(url)
       .getStream()
       .flatMap(f => generatePublicKeyFromBytes(f))
+      .map(f => {
+          Logger.info("Fetched and cached public key")
+          f
+      })
   }
 
   def generatePublicKeyFromBytes(f: (WSResponseHeaders, Enumerator[Array[Byte]])): Future[RSAPublicKey] = {
@@ -59,21 +65,36 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
     Try(JWSObject.parse(accessToken))
       .map(jwtObject => verifyToken(jwtObject, key)) match {
       case Success(e) => Future.successful(e)
-      case Failure(ex) => Future.failed(TokenParseException(ex.getMessage))
+      case Failure(ex) =>
+        Logger.error("Token parse exception, failed to parse token", ex)
+        Future.failed(TokenParseException(ex.getMessage, ex))
     }
   }
 
   def verifyToken(jWSObject: JWSObject, key: RSAPublicKey): Either[Exception, ValidationResponse] = {
     val verifier = new RSASSAVerifier(key)
     if (!jWSObject.verify(verifier)) {
-      Left(ValidationTokenException("Access token not verified"))
+      val ex: ValidationTokenException = ValidationTokenException("Access token not verified")
+      Logger.error("Token parse exception, failed to parse token", ex)
+      Left(ex)
     } else {
       val json = Json.parse(jWSObject.getPayload.toString)
       val res = json.as[ValidationResponse]
 
-      def ifEmpty: Either[Exception, ValidationResponse] = Left(ValidationTokenException("Token is corrupted on expiration data provided"))
+      def ifEmpty: Either[Exception, ValidationResponse] = {
+        val ex: ValidationTokenException = ValidationTokenException("Token is corrupted on expiration data provided")
+        Logger.error("Validation exception, expired data is not provided", ex)
+        Left(ex)
+      }
+
       res.exp.fold(ifEmpty)(time =>
-        if (time <= System.currentTimeMillis) Right(res) else Left(new TokenExpiredException("Expired access token")))
+        if (time <= System.currentTimeMillis) {
+          Logger.debug(s"Token validated with key and time, exp date is $res")
+          Right(res)
+        } else {
+          Logger.error(s"Token validation failed due to expiration ex time is $res")
+          Left(new TokenExpiredException(s"Expired access token with $res"))
+        })
     }
   }
 
@@ -81,7 +102,10 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
     if (result.status == OK) {
       val validationResult = result.json.validate[ValidationResponse]
       validationResult.fold(
-        errors => Left(ValidationTokenException(s"Wrong json response from token validation endpoint: $errors")),
+        errors => {
+          val ex: ValidationTokenException = ValidationTokenException(s"Wrong json response from token validation endpoint: $errors")
+          Logger.error(s"Wrong json response from token validation endpoint $result",ex)
+          Left(ex)},
         valRes => Right(valRes)
       )
     }

@@ -31,11 +31,11 @@ class Authorized(
       case Right(valResponse) => Right(new AuthorizedRequest[A](valResponse, request))
       // delegate the initial wrong value to the future
       case Left(ex) => Left(ex match {
-          case ValidationTokenException(msg) => Unauthorized(msg)
+          case ValidationTokenException(msg, _) => Unauthorized(msg)
           case _ => InternalServerError("Error error happened")
         })
     } recover {
-      case ValidationTokenException(msg) => Left(Unauthorized(msg))
+      case ValidationTokenException(msg, _) => Left(Unauthorized(msg))
       case _ => Left(InternalServerError("Error error happened"))
     }
   }
