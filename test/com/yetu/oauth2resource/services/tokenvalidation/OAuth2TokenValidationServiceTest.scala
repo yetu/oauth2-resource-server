@@ -33,8 +33,8 @@ class OAuth2TokenValidationServiceTest extends BaseSpec with Matchers with Route
   }
 
   "Validation service" should "validate reject wrong token (not jwt)" in {
-    whenReady(tokenValidationService.validate(Some(wrongToken), JWTTokenMethod()).failed) { e =>
-      e shouldBe a [TokenParseException]
+    whenReady(tokenValidationService.validate(Some(wrongToken), JWTTokenMethod())) { either =>
+      either should be('left)
     }
   }
 

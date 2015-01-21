@@ -67,7 +67,7 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
       case Success(e) => Future.successful(e)
       case Failure(ex) =>
         Logger.error("Token parse exception, failed to parse token", ex)
-        Future.failed(TokenParseException(ex.getMessage, ex))
+        Future.successful(Left(TokenParseException(ex.getMessage, ex)))
     }
   }
 
