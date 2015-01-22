@@ -1,10 +1,11 @@
 package com.yetu.oauth2resource.actions
 
 import com.yetu.oauth2resource.model.User
-import com.yetu.oauth2resource.services.tokenvalidation.{TokenValidationService, ValidationTokenException}
+import com.yetu.oauth2resource.services.tokenvalidation.{TokenParseException, TokenValidationService, ValidationTokenException}
 import com.yetu.oauth2resource.services.userdata.UserDataService
 import com.yetu.oauth2resource.settings.OAuth2ProviderSettings
 import com.yetu.oauth2resource.utils.AuthorizedRequest
+import play.api.Logger
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,11 +33,15 @@ class Authorized(
       // delegate the initial wrong value to the future
       case Left(ex) => Left(ex match {
           case ValidationTokenException(msg, _) => Unauthorized(msg)
-          case _ => InternalServerError("Error error happened")
+          case TokenParseException(msg, _) => Unauthorized(s"Can't parse token - $msg")
+          case e =>
+            Logger.error("Unexpected exception caught", e)
+            InternalServerError("Unexpected error happened" + e.getMessage)
         })
     } recover {
-      case ValidationTokenException(msg, _) => Left(Unauthorized(msg))
-      case _ => Left(InternalServerError("Error error happened"))
+      case e =>
+        Logger.error("Unexpected exception caught", e)
+        Left(InternalServerError(s"Unexpected error happened "+ e.getMessage))
     }
   }
 }
