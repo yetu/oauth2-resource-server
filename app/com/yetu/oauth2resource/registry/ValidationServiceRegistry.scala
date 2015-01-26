@@ -24,3 +24,7 @@ trait ValidationServiceRegistry {
   def oAuth2ProviderSettings: OAuth2ProviderSettings
 
 }
+
+object ValidationServiceRegistry extends ValidationServiceRegistry {
+  override def oAuth2ProviderSettings: OAuth2ProviderSettings = DefaultOAuth2ProviderSettings
+}

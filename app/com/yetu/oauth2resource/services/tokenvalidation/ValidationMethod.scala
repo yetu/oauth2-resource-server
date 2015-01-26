@@ -1,8 +1,8 @@
 package com.yetu.oauth2resource.services.tokenvalidation
 
 //method of access token validation
-abstract class ValidationMethod
+sealed trait ValidationMethod
 
-case class JWTTokenMethod() extends ValidationMethod
+case object JWTTokenMethod extends ValidationMethod
 
-case class RemoteMethod() extends ValidationMethod
+case object RemoteMethod extends ValidationMethod

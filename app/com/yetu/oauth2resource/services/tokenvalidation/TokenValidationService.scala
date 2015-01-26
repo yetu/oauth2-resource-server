@@ -11,13 +11,13 @@ trait TokenValidationService {
 
   protected def validateTokenWithJWT(accessToken: Token): Future[Either[Exception, ValidationResponse]]
 
-  def validate(accessToken: Option[Token], validationMethod: ValidationMethod = RemoteMethod()): Future[Either[Exception, ValidationResponse]] = {
+  def validate(accessToken: Option[Token], validationMethod: ValidationMethod = RemoteMethod): Future[Either[Exception, ValidationResponse]] = {
     accessToken match {
       case Some(value) => validationMethod match {
-        case RemoteMethod() =>
+        case RemoteMethod =>
           Logger.info(s"Validating token $accessToken with JWT")
           validateTokenRemote(value)
-        case JWTTokenMethod() =>
+        case JWTTokenMethod =>
           Logger.info(s"Validating token $accessToken with JWT")
           validateTokenWithJWT(value)
         case _ =>
