@@ -88,7 +88,7 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
       }
 
       res.exp.fold(ifEmpty)(time =>
-        if (time <= System.currentTimeMillis) {
+        if (time >= System.currentTimeMillis / 1000) {
           Logger.debug(s"Token validated with key and time, exp date is $res")
           Right(res)
         } else {
