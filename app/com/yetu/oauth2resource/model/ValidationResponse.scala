@@ -8,7 +8,8 @@ import play.api.libs.json._
  * For all the three-letter fields, see https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1
  * for a description.
  */
-case class ValidationResponse(userUUID: Option[String] = None, //TODO: get rid of this, use sub instead
+case class ValidationResponse(userUUID: String,
+                              clientId: String,
                               scope: Option[String] = None,
                               userId: Option[String] = None, //TODO: get rid of this, use sub instead
                               userEmail: Option[String] = None, //TODO: get rid of this, use sub instead
