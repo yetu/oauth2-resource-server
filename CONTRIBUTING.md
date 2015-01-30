@@ -49,3 +49,4 @@ But this will not tag the git commit. Also, it may not work for SNAPSHOT version
 
 * [Alex Migutsky](https://github.com/mr-mig)
 * [Joé Schaul](https://github.com/jschaul)
+* [Artem Zadorozhnyi](https://github.com/azadorozhniy)
