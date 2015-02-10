@@ -18,7 +18,7 @@ trait RoutesHelper {
     userEmail = Some("test@test.com"),
     scope = Some("basic"),
     exp = Some(1733500020),
-    aud = Some("test"),
+    aud = Some("events"),
     iss = Some("https://auth.yetudev.com"),
     sub= Some("ubject.with.dots"))
 }
