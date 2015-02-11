@@ -8,13 +8,13 @@ import com.nimbusds.jose.JWSObject
 import com.nimbusds.jose.crypto.RSASSAVerifier
 import com.yetu.oauth2resource.model.ValidationResponse
 import com.yetu.oauth2resource.settings.OAuth2ProviderSettings
+import play.api.Logger
 import play.api.Play.current
 import play.api.http.Status.OK
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse, WSResponseHeaders}
-import play.api.Logger
-
+import com.yetu.oauth2resource.settings.DefaultOAuth2ProviderSettings._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -22,7 +22,7 @@ import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
 
 
-class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSettings) extends TokenValidationService {
+class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSettings) extends TokenValidationService  {
 
   // needs server restart on new key issue
   lazy val publicKey: RSAPublicKey = Await.result(fetchPublicKey(oAuth2ProviderSettings.PublicKeyPath), 10 seconds)
@@ -36,7 +36,7 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
   }
 
   def validateTokenWithJWT(accessToken: String): Future[Either[Exception, ValidationResponse]] = {
-      processJWT(accessToken, publicKey)
+    processJWT(accessToken, publicKey)
   }
 
   def fetchPublicKey(url: String): Future[RSAPublicKey] = {
@@ -44,9 +44,9 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
       .getStream()
       .flatMap(f => generatePublicKeyFromBytes(f))
       .map(f => {
-          Logger.info("Fetched and cached public key")
-          f
-      })
+      Logger.info("Fetched and cached public key")
+      f
+    })
   }
 
   def generatePublicKeyFromBytes(f: (WSResponseHeaders, Enumerator[Array[Byte]])): Future[RSAPublicKey] = {
@@ -73,6 +73,7 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
 
   def verifyToken(jWSObject: JWSObject, key: RSAPublicKey): Either[Exception, ValidationResponse] = {
     val verifier = new RSASSAVerifier(key)
+
     if (!jWSObject.verify(verifier)) {
       val ex: ValidationTokenException = ValidationTokenException("Access token not verified")
       Logger.error("Token parse exception, failed to parse token", ex)
@@ -81,21 +82,43 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
       val json = Json.parse(jWSObject.getPayload.toString)
       val res = json.as[ValidationResponse]
 
-      def ifEmpty: Either[Exception, ValidationResponse] = {
-        val ex: ValidationTokenException = ValidationTokenException("Token is corrupted on expiration data provided")
-        Logger.error("Validation exception, expired data is not provided", ex)
-        Left(ex)
-      }
-
-      res.exp.fold(ifEmpty)(time =>
-        if (time >= System.currentTimeMillis / 1000) {
-          Logger.debug(s"Token validated with key and time, exp date is $res")
-          Right(res)
-        } else {
-          Logger.error(s"Token validation failed due to expiration ex time is $res")
-          Left(new TokenExpiredException(s"Expired access token with $res"))
-        })
+      verifyExp(res).fold(Left(_), r => verifyAudience(r))
     }
+  }
+
+  def verifyExp(jwt: ValidationResponse): Either[Exception, ValidationResponse] = {
+    def ifEmpty: Either[Exception, ValidationResponse] = {
+      val ex: ValidationTokenException = ValidationTokenException("Token is corrupted on expiration data provided")
+      Logger.error("Validation exception, expired data is not provided", ex)
+      Left(ex)
+    }
+
+    jwt.exp.fold(ifEmpty)(time =>
+      if (time * 1000 >= System.currentTimeMillis) {
+        Logger.debug(s"Token validated with key and time, exp date is $jwt")
+        Right(jwt)
+      } else {
+        Logger.error(s"Token validation failed due to expiration ex time is $jwt")
+        Left(new TokenExpiredException(s"Expired access token with $jwt"))
+      })
+  }
+
+  def verifyAudience(jwt: ValidationResponse) = {
+    def ifNoAudience: Either[Exception, ValidationResponse] = {
+      val ex = InvalidAudienceException("Token is corrupted on expiration data provided")
+      Logger.error("Validation exception, expired data is not provided", ex)
+      Left(ex)
+    }
+
+    jwt.aud.fold(ifNoAudience)(aud =>
+      Defaults.targetAudience.intersect(aud.split(" ").toList) match {
+        case Nil =>
+          Logger.error(s"Invalid token can't match audience for jwt token $jwt")
+          Left(new InvalidAudienceException(s"Invalid token can't match audience for jwt token $jwt"))
+        case x =>
+          Logger.debug(s"Token validated with aud, aud date is $x")
+          Right(jwt)
+      })
   }
 
   private def getUserId(result: WSResponse): Either[Exception, ValidationResponse] = {
@@ -104,8 +127,9 @@ class OAuth2TokenValidationService(oAuth2ProviderSettings: OAuth2ProviderSetting
       validationResult.fold(
         errors => {
           val ex: ValidationTokenException = ValidationTokenException(s"Wrong json response from token validation endpoint: $errors")
-          Logger.error(s"Wrong json response from token validation endpoint $result",ex)
-          Left(ex)},
+          Logger.error(s"Wrong json response from token validation endpoint $result", ex)
+          Left(ex)
+        },
         valRes => Right(valRes)
       )
     }
