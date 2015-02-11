@@ -1,5 +1,10 @@
 package com.yetu.oauth2resource.settings
 
+import java.util
+
+import scala.collection.JavaConversions._
+
+
 trait OAuth2ProviderSettings {
 
   /**
@@ -41,5 +46,6 @@ trait OAuth2ProviderSettings {
     val publicCertUrlRelativePath = config.getString("oauth2provider.relativePaths.publicKey")
     val tokenValidationRelativePath =  config.getString("oauth2provider.relativePaths.tokenValidation")
     val userProfileRelativePath = config.getString("oauth2provider.relativePaths.userProfile")
+    val targetAudience: List[String] = config.getStringList("oauth2provider.targetAudiences").toList
   }
 }

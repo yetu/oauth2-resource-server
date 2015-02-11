@@ -11,6 +11,7 @@ trait RoutesHelper {
 
   val config = ConfigFactory.load()
   val correctToken = config.getString("oauth.test.token")
+  val correctTokenInvalidAud = config.getString("oauth.test.invalid.token.aud")
   val wrongToken = "wrong_access_token"
 
   val successfulValidationResponse = ValidationResponse(userUUID = Some("87656789-lkhghj-98678"),

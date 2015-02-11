@@ -2,11 +2,14 @@ package com.yetu.oauth2resource.services.tokenvalidation
 
 import com.yetu.oauth2resource.base.BaseSpec
 import com.yetu.oauth2resource.registry.{ValidationServiceRegistry, ValidationTestRegistry}
+import com.yetu.oauth2resource.services.tokenvalidation.InvalidAudienceException
 import com.yetu.oauth2resource.utils.RoutesHelper
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.MustMatchers._
+import org.scalatest.Matchers._
+
 
 class OAuth2TokenValidationServiceTest extends BaseSpec with Matchers with RoutesHelper with ScalaFutures  {
 
@@ -45,5 +48,14 @@ class OAuth2TokenValidationServiceTest extends BaseSpec with Matchers with Route
       either must be('right)
       either.right.get.exp.get must be > System.currentTimeMillis() / 1000 + (60 * 24 * 30)
     }
+  }
+
+  "Validation service" must "reject valid access token but with wrong audience" in {
+    whenReady(realValidationService.validate(Some(correctTokenInvalidAud), JWTTokenMethod)) { either =>
+      either must be('left)
+      either.left.get mustBe a[InvalidAudienceException]
+    }
+
+
   }
 }
