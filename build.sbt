@@ -11,7 +11,7 @@ scalaVersion :=  "2.11.2"
 libraryDependencies ++= Seq(
   ws,
   "net.logstash.logback" % "logstash-logback-encoder" % "3.0",
-  "com.nimbusds" % "nimbus-jose-jwt" % "2.10.1",
+  "com.nimbusds" % "nimbus-jose-jwt" % "3.10",
   "org.scalatestplus" %% "play" % "1.2.0" % "test",
   "com.softwaremill.macwire" %% "macros" % "0.7.1")
 
