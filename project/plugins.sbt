@@ -6,7 +6,7 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.5")
 
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.5")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.8")
 
 
 resolvers += Resolver.url(
